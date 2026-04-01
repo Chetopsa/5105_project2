@@ -46,6 +46,7 @@ class StorageNodeService(project2_pb2_grpc.StorageNodeServiceServicer):
         # Default placeholder return below lets the project run before you implement this.
         self.records.append(request.record)
         self.centroid = update_centroid(self.records)
+        self.centroid = update_centroid(self.records)
 
         return StoreRecordResponse(
             ok=True,
@@ -68,9 +69,8 @@ class StorageNodeService(project2_pb2_grpc.StorageNodeServiceServicer):
         #    is doing a full scan over its own local partition.
         #
         # Default placeholder return below lets the project run before you implement this.
-        
         return SearchLocalResponse(
-            hits= local_top_k(self.records, list(request.query_embedding), request.top_k),
+            hits=local_top_k(self.records, list(request.query_embedding), request.top_k),
             target=NODE_TARGET,
             vectors_searched=len(self.records),
         )
@@ -112,10 +112,7 @@ class StorageNodeService(project2_pb2_grpc.StorageNodeServiceServicer):
         # Default placeholder return below lets the project run before you implement this.
         local_records = self.records
         keep_records, move_records, keep_centroid, move_centroid = kmeans_split(local_records)
-        # with grpc.insecure_channel(request.new_node_target) as channel:
-        #     StorageNodeServiceStub(channel).ReplaceLocalPartition(records=move_records,centroid=Centroid(values=move_centroid))
-            
-            # channel.ReplaceLocalPartition(records=move_records,centroid=Centroid(values=move_centroid))
+
         with grpc.insecure_channel(request.new_node_target) as channel:
             stub = project2_pb2_grpc.StorageNodeServiceStub(channel)
             stub.ReplaceLocalPartition(
@@ -124,10 +121,9 @@ class StorageNodeService(project2_pb2_grpc.StorageNodeServiceServicer):
                     centroid=Centroid(values=move_centroid),
                 )
             )
-        
-    
-        self.centroid = keep_centroid
+
         self.records = keep_records
+        self.centroid = keep_centroid
 
         return SplitPartitionResponse(
             ok=True,

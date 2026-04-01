@@ -83,6 +83,7 @@ class ControllerService(project2_pb2_grpc.ControllerServiceServicer):
 
             # error check response the nodes reponse
             if not store_response.ok:
+                print(f"Error storing record on node {best_node['target']}")
                 return PutResponse(
                 ok=False,
                 target="",
