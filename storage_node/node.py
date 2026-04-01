@@ -45,7 +45,7 @@ class StorageNodeService(project2_pb2_grpc.StorageNodeServiceServicer):
         #
         # Default placeholder return below lets the project run before you implement this.
         self.records.append(request.record)
-        update_centroid(self.records)
+        self.centroid = update_centroid(self.records)
 
         return StoreRecordResponse(
             ok=True,
@@ -115,8 +115,8 @@ class StorageNodeService(project2_pb2_grpc.StorageNodeServiceServicer):
         with grpc.insecure_channel(request.new_node_target) as channel:
             channel.ReplaceLocalPartition(records=move_records,centroid=Centroid(values=move_centroid))
             
-        self.centroid = Centroid(keep_centroid)
-        self.records = Centroid(keep_records)
+        self.centroid = keep_centroid
+        self.records = keep_records
 
         return SplitPartitionResponse(
             ok=True,
