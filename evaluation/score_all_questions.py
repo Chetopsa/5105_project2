@@ -4,6 +4,7 @@ from pathlib import Path
 import os
 
 import grpc
+from controller.controller import MAX_VECTORS_PER_NODE
 from project2_pb2 import *
 import project2_pb2_grpc
 from utils.config import CONTROLLER_TARGET
@@ -144,6 +145,7 @@ def print_summary(results: list[dict], total_vectors: int) -> None:
     print("\n" + "=" * 80)
     print("NORMALIZED SCORING SUMMARY")
     print("=" * 80)
+    print(MAX_VECTORS_PER_NODE)
     print(f"Questions evaluated:      {len(results)}")
     print(f"Total corpus vectors:     {total_vectors}")
     print(f"Average hit rate:         {avg_hit_rate:.4f}")

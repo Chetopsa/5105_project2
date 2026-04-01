@@ -10,7 +10,7 @@ from utils.config import CONTROLLER_PORT, NODE_PORT
 from utils.utils import choose_closest_node, create_storage_node
 
 
-MAX_VECTORS_PER_NODE = 1000
+MAX_VECTORS_PER_NODE = 5
 
 
 class ControllerService(project2_pb2_grpc.ControllerServiceServicer):
@@ -97,7 +97,9 @@ class ControllerService(project2_pb2_grpc.ControllerServiceServicer):
             if store_response.count >= MAX_VECTORS_PER_NODE and not self.repartitioning:
                 self.repartitioning = True
                 #  spawn new thread to run split
-                threading.Thread(target=self._run_split, args=(best_node["target"], self.next_node_num)).start()
+                # threading.Thread(target=self._run_split, args=(best_node["target"], self.next_node_num)).start()
+                #dont spawn a new thread lol
+                self._run_split(best_node["target"], self.next_node_num)
                 self.next_node_num += 1
                 
         
