@@ -112,19 +112,30 @@ class StorageNodeService(project2_pb2_grpc.StorageNodeServiceServicer):
         # Default placeholder return below lets the project run before you implement this.
         local_records = self.records
         keep_records, move_records, keep_centroid, move_centroid = kmeans_split(local_records)
-        with grpc.insecure_channel(request.new_node_target) as channel:
-            channel.ReplaceLocalPartition(records=move_records,centroid=Centroid(values=move_centroid))
+        # with grpc.insecure_channel(request.new_node_target) as channel:
+        #     StorageNodeServiceStub(channel).ReplaceLocalPartition(records=move_records,centroid=Centroid(values=move_centroid))
             
+            # channel.ReplaceLocalPartition(records=move_records,centroid=Centroid(values=move_centroid))
+        with grpc.insecure_channel(request.new_node_target) as channel:
+            stub = project2_pb2_grpc.StorageNodeServiceStub(channel)
+            stub.ReplaceLocalPartition(
+                ReplaceLocalPartitionRequest(
+                    records=move_records,
+                    centroid=Centroid(values=move_centroid),
+                )
+            )
+        
+    
         self.centroid = keep_centroid
         self.records = keep_records
 
         return SplitPartitionResponse(
             ok=True,
             old_target=NODE_TARGET,
-            old_centroid=keep_centroid,
+            old_centroid=Centroid(values=keep_centroid),
             old_count=len(keep_records),
             new_target=request.new_node_target,
-            new_centroid=move_centroid,
+            new_centroid=Centroid(values=move_centroid),
             new_count=len(move_records),
         )
 
