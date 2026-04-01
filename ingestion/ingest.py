@@ -38,10 +38,10 @@ def put_mini_corpus():
                 f"count={response.target_count} split_triggered={response.split_triggered}"
             )
 
-def put_full_corpus():
+def put_full_corpus(corpus_file):
     """TODO: Implement this function... recommended to Put one at at time with full corups to avoid reading whole file"""
 
-    full_corpus_path = Path(CORPUS_FOLDER, "full_corpus_shuffled.jsonl")
+    full_corpus_path = Path(CORPUS_FOLDER, corpus_file)
 
 
     with grpc.insecure_channel(CONTROLLER_TARGET) as channel:
@@ -69,7 +69,12 @@ def put_full_corpus():
 def main():
 
     # put_mini_corpus()
-    put_full_corpus()
+    # put_full_corpus("full_corpus.jsonl")
+    put_full_corpus("corpus_sorted_by_id.jsonl")
+    # put_full_corpus("corpus_sequential.jsonl")
+
+
+
 
 
 if __name__ == "__main__":

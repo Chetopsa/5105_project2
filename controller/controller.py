@@ -11,6 +11,7 @@ from utils.utils import choose_closest_node, create_storage_node
 
 
 MAX_VECTORS_PER_NODE = 1000
+print(f"Controller will trigger split at {MAX_VECTORS_PER_NODE} vectors per node\n")
 
 
 class ControllerService(project2_pb2_grpc.ControllerServiceServicer):
