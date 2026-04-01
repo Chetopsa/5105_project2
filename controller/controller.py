@@ -78,7 +78,7 @@ class ControllerService(project2_pb2_grpc.ControllerServiceServicer):
         best_node = choose_closest_node(self.nodes, list(request.record.embedding))
 
         # open grpc channel
-        with grpc.insecure_channel(best_node.target) as channel:
+        with grpc.insecure_channel(best_node["target"]) as channel:
             store_response = StorageNodeServiceStub(channel).StoreRecord(StoreRecordRequest(record=request.record))
 
             # error check response the nodes reponse
@@ -92,17 +92,17 @@ class ControllerService(project2_pb2_grpc.ControllerServiceServicer):
 
 
             self.total_vectors += 1
-            best_node.centroid = store_response.centroid.values
+            best_node["centroid"] = store_response.centroid.values
             if store_response.count >= MAX_VECTORS_PER_NODE and not self.repartitioning:
                 self.repartitioning = True
                 #  spawn new thread to run split
-                threading.Thread(target=self._run_split, args=(best_node.target, self.next_node_num)).start()
+                threading.Thread(target=self._run_split, args=(best_node["target"], self.next_node_num)).start()
                 self.next_node_num += 1
                 
         
             return PutResponse(
                 ok=True,
-                target=best_node.target,
+                target=best_node["target"],
                 target_count=store_response.count,
                 split_triggered=self.repartitioning,
             )
@@ -133,7 +133,7 @@ class ControllerService(project2_pb2_grpc.ControllerServiceServicer):
         # Default placeholder return below lets the project run before you implement this.
         query_embedding = list(request.embedding)
         closest_node = choose_closest_node(self.nodes,query_embedding)
-        with grpc.insecure_channel(closest_node.target) as channel:
+        with grpc.insecure_channel(closest_node["target"]) as channel:
             search_response = StorageNodeServiceStub(channel).SearchLocal(SearchLocalRequest(query_embedding=query_embedding, top_k=5))
             
         

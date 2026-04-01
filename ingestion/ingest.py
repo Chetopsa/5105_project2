@@ -31,7 +31,6 @@ def put_mini_corpus():
 
         # Iterate over records and Put into database
         for i, record in enumerate(records, start=1):
-            print("DEBUG: record =", record)
             response = stub.Put(project2_pb2.PutRequest(record=record))
 
             print(
