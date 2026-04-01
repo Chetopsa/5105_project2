@@ -7,6 +7,8 @@ import grpc
 from project2_pb2 import *
 import project2_pb2_grpc
 from utils.utils import cosine_similarity, update_centroid, local_top_k, kmeans_split
+from proto.src.project2_pb2 import Centroid, SearchLocalResponse, SplitPartitionResponse, StoreRecordRequest, SearchLocalRequest
+ 
 
 
 GRPC_SERVER_PORT = int(os.environ.get("GRPC_SERVER_PORT", "50051"))
@@ -42,10 +44,13 @@ class StorageNodeService(project2_pb2_grpc.StorageNodeServiceServicer):
         #       - count=len(self.records)
         #
         # Default placeholder return below lets the project run before you implement this.
+        self.records.append(request.record)
+        update_centroid(self.records)
+
         return StoreRecordResponse(
-            ok=False,
+            ok=True,
             target=NODE_TARGET,
-            centroid=Centroid(values=[]),
+            centroid=Centroid(values=self.centroid),
             count=len(self.records),
         )
 
@@ -63,10 +68,11 @@ class StorageNodeService(project2_pb2_grpc.StorageNodeServiceServicer):
         #    is doing a full scan over its own local partition.
         #
         # Default placeholder return below lets the project run before you implement this.
+        
         return SearchLocalResponse(
-            hits=[],
+            hits= local_top_k(self.records, list(request.query_embedding), request.top_k),
             target=NODE_TARGET,
-            vectors_searched=0,
+            vectors_searched=len(self.records),
         )
 
     def ReplaceLocalPartition(
@@ -104,14 +110,22 @@ class StorageNodeService(project2_pb2_grpc.StorageNodeServiceServicer):
         #       - new_count = len(move_records)
         #
         # Default placeholder return below lets the project run before you implement this.
+        local_records = self.records
+        keep_records, move_records, keep_centroid, move_centroid = kmeans_split(local_records)
+        with grpc.insecure_channel(request.new_node_target) as channel:
+            channel.ReplaceLocalPartition(records=move_records,centroid=Centroid(values=move_centroid))
+            
+        self.centroid = Centroid(keep_centroid)
+        self.records = Centroid(keep_records)
+
         return SplitPartitionResponse(
-            ok=False,
+            ok=True,
             old_target=NODE_TARGET,
-            old_centroid=Centroid(values=self.centroid),
-            old_count=len(self.records),
+            old_centroid=keep_centroid,
+            old_count=len(keep_records),
             new_target=request.new_node_target,
-            new_centroid=Centroid(values=[]),
-            new_count=0,
+            new_centroid=move_centroid,
+            new_count=len(move_records),
         )
 
     def GetNodeStats(
