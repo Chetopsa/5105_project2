@@ -69,8 +69,8 @@ def put_full_corpus(corpus_file):
 def main():
 
     # put_mini_corpus()
-    # put_full_corpus("full_corpus.jsonl")
-    put_full_corpus("corpus_sorted_by_id.jsonl")
+    put_full_corpus("full_corpus_shuffled.jsonl")
+    # put_full_corpus("corpus_sorted_by_id.jsonl")
     # put_full_corpus("corpus_sequential.jsonl")
 
 

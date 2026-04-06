@@ -10,7 +10,7 @@ from utils.config import CONTROLLER_PORT, NODE_PORT
 from utils.utils import choose_closest_node, create_storage_node
 
 
-MAX_VECTORS_PER_NODE = 5
+MAX_VECTORS_PER_NODE = 2000
 
 
 class ControllerService(project2_pb2_grpc.ControllerServiceServicer):
@@ -135,17 +135,33 @@ class ControllerService(project2_pb2_grpc.ControllerServiceServicer):
         #
         # Default placeholder return below lets the project run before you implement this.
         query_embedding = list(request.embedding)
-        closest_node = choose_closest_node(self.nodes,query_embedding)
-        with grpc.insecure_channel(closest_node["target"]) as channel:
-            search_response = StorageNodeServiceStub(channel).SearchLocal(SearchLocalRequest(query_embedding=query_embedding, top_k=5))
-            
-        
-            return search_response
-        # return SearchLocalResponse(
-        #     hits=[],
-        #     target="",
-        #     vectors_searched=0,
-        # )
+
+        # Get the two closest nodes
+        closest_nodes = sorted(
+            self.nodes,
+            key=lambda node: sum((a - b) ** 2 for a, b in zip(node["centroid"], query_embedding))
+        )[:2]
+
+        # Perform search on both nodes
+        results = []
+        vectors_searched = 0
+        for node in closest_nodes:
+            with grpc.insecure_channel(node["target"]) as channel:
+                search_response = StorageNodeServiceStub(channel).SearchLocal(
+                    SearchLocalRequest(query_embedding=query_embedding, top_k=5)
+                )
+                results.extend(search_response.hits)
+                vectors_searched += search_response.vectors_searched
+
+        # Sort results by score and take the top 5
+        top_results = sorted(results, key=lambda hit: hit.score, reverse=True)[:5]
+
+        # Return aggregated response
+        return SearchLocalResponse(
+            hits=top_results,
+            target=", ".join(node["target"] for node in closest_nodes),
+            vectors_searched=vectors_searched,
+        )
 
     def ClusterStatus(
         self, request: ClusterStatusRequest, context: grpc.ServicerContext
