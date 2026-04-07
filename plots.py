@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 thresholds = [100, 200, 500, 1000, 2000]
 
 old_hit_rate      = [0.5513, 0.6038, 0.6693, 0.7538, 1.0000]
@@ -10,8 +11,12 @@ old_final_score   = [19.8676, 8.8994, 3.5376, 2.6364, 1.0000]
 
 new_hit_rate      = [0.7120, 0.7608, 0.8885, 0.9613, 1.0000]
 new_vectors       = [134.57, 290.55, 708.45, 935.72, 1321.00]
-new_score_acc     = [0.8583, 0.8525, 0.8764, 0.8808, 0.9997]
-new_final_score   = [8.5501, 3.9263, 1.6413, 1.2629, 0.9997]
+new_score_acc     = [0.9563, 0.9629, 0.9861, 0.9955, 1.0000]
+new_final_score   = [9.5334, 4.4358, 1.8489, 1.4302, 1.0000]
+
+score_acc_diff = np.array(new_score_acc)[:-1] - np.array(old_score_acc)[:-1]
+
+print(np.mean(score_acc_diff))
 
 x = np.arange(len(thresholds))
 width = 0.35
@@ -63,6 +68,6 @@ ax.set_ylabel('Final Score')
 ax.legend()
 ax.grid(linestyle='--', alpha=0.5)
 
-plt.tight_layout()
-plt.savefig('./probe_comparison.png', dpi=150, bbox_inches='tight')
-print("Saved to probe_comparison.png")
+# plt.tight_layout()
+# plt.savefig('./probe_comparison.png', dpi=150, bbox_inches='tight')
+# print("Saved to probe_comparison.png")
