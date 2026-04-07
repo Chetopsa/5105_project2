@@ -6,15 +6,14 @@ Group:
 
 ## Setting Up the Project
 
-1. Open the project repository in a development container in VsCode
-2. Navigate to the `docker` folder.
-3. Run the following commands to set up the Docker environment:
-
+1. Navigate to the `docker` folder.
+2. Run the following commands to set up the Docker environment:
    ```bash
    docker compose down
    docker rm -f $(docker ps -aq --filter "name=storage-node")
    docker compose up --build -d
    ```
+3. Open the project repository in a development container in VsCode
 
 ## Running Evaluations
 
