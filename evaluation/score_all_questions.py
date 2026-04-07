@@ -14,7 +14,6 @@ from utils.utils import corpus_line_to_record
 CORPUS_FILE = Path(os.environ["WORKSPACE_FOLDER"], "corpus", "full_corpus_shuffled.jsonl")
 QUESTIONS_FILE = Path(os.environ["WORKSPACE_FOLDER"], "question_set", "questions_scored.jsonl")
 
-
 def ingest_full_corpus(corpus_path: Path) -> int:
     total_vectors: int = 0
 
